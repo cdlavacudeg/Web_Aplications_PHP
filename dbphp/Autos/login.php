@@ -29,7 +29,7 @@
                 if ( $check == $stored_hash ) {
                     // Redirect the browser to view.php
                     $_SESSION['name']=$_POST["email"];
-                    header("Location: view.php");
+                    header("Location: index.php");
                     error_log("Login success ".$_POST['email']);
                     return;
                 } else {
