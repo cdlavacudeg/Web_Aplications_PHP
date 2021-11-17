@@ -72,13 +72,40 @@
 <input type="text" name="email" id="nam"><br/>
 <label for="id_1723">Password</label>
 <input type="text" name="pass" id="id_1723"><br/>
-<input type="submit" value="Log In">
+<input type="submit" onclick="return doValidate();" value="Log In">
 <input type="submit" name="cancel" value="Cancel">
 </form>
 <p>
 For a password hint, view source and find a password hint
 in the HTML comments.
-<!-- Hint: The password is the name of the programming language we are learning with 123 -->
+<!-- Hint: umsi@umich.edu The password is the name of the programming language we are learning with 123 -->
 </p>
 </div>
+
+<script>
+    function doValidate() {
+    console.log('Validating...');
+    try {
+        em = document.getElementById('nam').value;
+        pw = document.getElementById('id_1723').value;
+        console.log("Validating em="+em+" pw="+pw);
+
+        if (pw == null || pw == "" || em == null || em == "") {
+            alert("Both fields must be filled out");
+            return false;
+        }
+
+        if(em.indexOf('@')==-1){
+            alert("Invalid email address");
+            return false;
+        }
+        return true;
+    } catch(e) {
+        return false;
+    }
+    return false;
+}
+</script>
+
+
 </body>

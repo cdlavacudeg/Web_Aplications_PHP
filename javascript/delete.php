@@ -1,24 +1,34 @@
 <?php 
-    session_start();
-    if(!isset($_SESSION['name'])){
-        die('ACCESS DENIED');
-    }
+    require_once 'log_in.php';
     require_once "pdo.php";
-    if ( isset($_POST['delete']) && isset($_POST['autos_id']) ) {
-    $sql = "DELETE FROM autos WHERE autos_id = :zip";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(array(':zip' => $_POST['autos_id']));
-    $_SESSION['success'] = 'Record deleted';
+
+  
+    $stmt = $pdo->prepare("SELECT user_id,profile_id,first_name FROM profile WHERE profile_id=:pid");
+    $stmt->execute(array(
+                    ':pid' => htmlentities($_GET['profile_id']))
+                );
+    $profile=$stmt->fetch();
+
+    if ( $profile === false ) {
+    $_SESSION['error'] = 'Bad value for profile_id';
     header( 'Location: index.php' ) ;
     return;
     }
-    $stmt = $pdo->prepare("SELECT make, autos_id FROM autos where autos_id = :xyz");
-    $stmt->execute(array(":xyz" => $_GET['autos_id']));
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ( $row === false ) {
-    $_SESSION['error'] = 'Bad value for autos_id';
-    header( 'Location: index.php' ) ;
-    return;
+
+    if ( isset($_POST['delete']) && isset($_POST['profile_id']) ) {
+        if($profile['user_id']==$_SESSION['user_id']){
+            $sql = "DELETE FROM profile WHERE profile_id = :zip";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array(':zip' => $_POST['profile_id']));
+            $_SESSION['success'] = 'Record deleted';
+            header( 'Location: index.php' ) ;
+            return;
+        }else{
+            $_SESSION['error']="You don't own this entry";
+            header('Location:index.php');
+            return; 
+        }
+        
     }
 ?>
 
@@ -33,9 +43,9 @@
 
 <body>
 <div class="container">
-<p>Confirm: Deleting <?= htmlentities($row['make']) ?></p>
+<p>Confirm: Deleting <?= htmlentities($profile['first_name']) ?></p>
 <form method="post"><input type="hidden"
-name="autos_id" value="<?= $row['autos_id'] ?>">
+name="profile_id" value="<?= $profile['profile_id'] ?>">
 <input type="submit" value="Delete" name="delete">
 <a href="index.php"> Cancel</a>
 </form>

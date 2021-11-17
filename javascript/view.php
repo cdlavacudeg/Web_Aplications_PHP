@@ -1,11 +1,12 @@
 <?php
     session_start();
     require_once 'pdo.php';
-    if(!isset($_SESSION['name'])){
-        die('Not logged in');
-    }
-    $stmt = $pdo->query("SELECT make, year, mileage, auto_id FROM autos");
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare("SELECT first_name, last_name, email, headline, summary FROM profile WHERE profile_id=:pid");
+    $stmt->execute(array(
+        ':pid' => htmlentities($_GET['profile_id']))
+    );
+    $profile=$stmt->fetch();
+    
 ?>
 
 <!DOCTYPE html>
@@ -16,7 +17,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>Traking Autos for <?php echo ($_SESSION['name'])?></h1>
+    <h1>Profile information</h1>
     <?php 
         if ( isset($_SESSION['success']) ) {
             echo('<p style="color: green;">'.htmlentities($_SESSION['success'])."</p>\n");
@@ -27,14 +28,15 @@
     <h2>Automobiles</h2>
     <ul>
         <?php
-        foreach($rows as $row){
-            echo ('<li>'.'<!--'.$row['auto_id'].'-->'.$row['year'].' '.$row['make'].' / '.$row['mileage'].'</li>');
-        }
+        echo('<p> First name:'.$profile['first_name'].'</p>');
+        echo('<p> Last name:'.$profile['last_name'].'</p>');
+        echo('<p> Email:'.$profile['email'].'</p>');
+        echo('<p> Headline:'.$profile['headline'].'</p>');
+        echo('<p> Summary:'.$profile['summary'].'</p>');
         ?>
     </ul>
     <p>
-    <a href="add.php">Add New</a> |
-    <a href="logout.php">Logout</a>
+    <a href="index.php">Done</a>
     </p>
 
 

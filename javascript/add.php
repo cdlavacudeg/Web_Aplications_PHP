@@ -1,9 +1,7 @@
 <?php 
-    session_start();
+    require_once 'log_in.php';
     require_once 'pdo.php';
-    if(!isset($_SESSION['name'])){
-        die("ACCESS DENIED");
-    }
+    
 
     if ( isset($_POST['cancel']) ) {
         header('Location: index.php');
@@ -22,7 +20,7 @@
                 header('Location:add.php');
                 return;
             }else{
-                $stmt = $pdo->prepare('INSERT INTO Profile  (user_id, first_name, last_name, email, headline, summary) VALUES ( :uid, :fn, :ln, :em, :he, :su)');
+                $stmt = $pdo->prepare('INSERT INTO profile  (user_id, first_name, last_name, email, headline, summary) VALUES ( :uid, :fn, :ln, :em, :he, :su)');
                 $stmt->execute(array(
                     ':uid' => $_SESSION['user_id'],
                     ':fn' => $_POST['first_name'],

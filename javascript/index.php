@@ -1,7 +1,7 @@
 <?php 
  session_start();
  require_once 'pdo.php';
- $stmt = $pdo->query("SELECT first_name,last_name,headline FROM profile");
+ $stmt = $pdo->query("SELECT profile_id,first_name,last_name,headline FROM profile");
  $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -40,7 +40,7 @@
                 </tr>');
             foreach($rows as $row){
                 echo('<tr><td>');
-                echo(htmlentities($row['first_name'].' '.$row['last_name']));
+                echo('<a href="view.php?profile_id='.$row['profile_id'].'">'.htmlentities($row['first_name'].' '.$row['last_name']).'</a>');
                 echo("</td><td>");
                 echo(htmlentities($row['headline']));
                 echo("</td><td>");
