@@ -1,31 +1,24 @@
 <?php
     session_start();
     require_once 'pdo.php';
-    $stmt = $pdo->prepare("SELECT first_name, last_name, email, headline, summary FROM profile WHERE profile_id=:pid");
-    $stmt->execute(array(
-        ':pid' => htmlentities($_GET['profile_id']))
-    );
-    $profile=$stmt->fetch();
+    require_once 'util.php';
+
+    $profile=selectProfile($pdo);
     
 ?>
 
 <!DOCTYPE html>
 <html>
-<head>
-<title>Cristian David Lavacude Galvis</title>
-<?php require_once "bootstrap.php"; ?>
-</head>
+<?php require_once 'head.php';?>
+
 <body>
 <div class="container">
     <h1>Profile information</h1>
     <?php 
-        if ( isset($_SESSION['success']) ) {
-            echo('<p style="color: green;">'.htmlentities($_SESSION['success'])."</p>\n");
-            unset($_SESSION['success']);
-        }
+        flashMessages();
     ?>
 
-    <h2>Automobiles</h2>
+    <h2>Profile</h2>
     <ul>
         <?php
         echo('<p> First name:'.$profile['first_name'].'</p>');

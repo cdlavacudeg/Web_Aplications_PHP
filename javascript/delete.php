@@ -36,10 +36,7 @@
 
 <!DOCTYPE html>
 <html>
-<head>
-<title>Cristian David Lavacude Galvis</title>
-<?php require_once "bootstrap.php"; ?>
-</head>
+<?php require_once 'head.php';?>
 
 <body>
 <div class="container">

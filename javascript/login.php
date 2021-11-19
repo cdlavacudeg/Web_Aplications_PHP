@@ -1,8 +1,9 @@
 <?php // Do not put any HTML above this line
     session_start();
     require_once 'pdo.php';
+    require_once 'util.php';
+
     if ( isset($_POST['cancel'] ) ) {
-        // Redirect the browser to game.php
         header("Location: logout.php");
         return;
     }
@@ -31,7 +32,6 @@
                 $stmt->execute(array( ':em' => $_POST['email'], ':pw' => $check));
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ( $row !== false ) {
-                    // Redirect the browser to view.php
                     $_SESSION['name']=$row['name'];
                     $_SESSION['user_id']=$row['user_id'];
                     header("Location: index.php");
@@ -48,64 +48,56 @@
         }
     }
 
-    // Fall through into the View
     ?>
+
     <!DOCTYPE html>
     <html>
-    <head>
-    <?php require_once "bootstrap.php"; ?>
-    <title> Cristian David Lavacude Galvis</title>
-    </head>
+    <?php require_once 'head.php';?>
     <body>
     <div class="container">
     <h1>Please Log In</h1>
     <?php
+    flashMessages();
+    ?>
+    <form method="POST">
+    <label for="nam">User Name</label>
+    <input type="text" name="email" id="nam"><br/>
+    <label for="id_1723">Password</label>
+    <input type="text" name="pass" id="id_1723"><br/>
+    <input type="submit" onclick="return doValidate();" value="Log In">
+    <input type="submit" name="cancel" value="Cancel">
+    </form>
+    <p>
+    For a password hint, view source and find a password hint
+    in the HTML comments.
+    <!-- Hint: umsi@umich.edu The password is the name of the programming language we are learning with 123 -->
+    </p>
+    </div>
 
-    if ( isset($_SESSION['error']) ) {
-        
-        echo('<p style="color: red;">'.htmlentities($_SESSION['error'])."</p>\n");
-        unset($_SESSION['error']);
-    }
-?>
-<form method="POST">
-<label for="nam">User Name</label>
-<input type="text" name="email" id="nam"><br/>
-<label for="id_1723">Password</label>
-<input type="text" name="pass" id="id_1723"><br/>
-<input type="submit" onclick="return doValidate();" value="Log In">
-<input type="submit" name="cancel" value="Cancel">
-</form>
-<p>
-For a password hint, view source and find a password hint
-in the HTML comments.
-<!-- Hint: umsi@umich.edu The password is the name of the programming language we are learning with 123 -->
-</p>
-</div>
+    <script>
+        function doValidate() {
+        console.log('Validating...');
+        try {
+            em = document.getElementById('nam').value;
+            pw = document.getElementById('id_1723').value;
+            console.log("Validating em="+em+" pw="+pw);
 
-<script>
-    function doValidate() {
-    console.log('Validating...');
-    try {
-        em = document.getElementById('nam').value;
-        pw = document.getElementById('id_1723').value;
-        console.log("Validating em="+em+" pw="+pw);
+            if (pw == null || pw == "" || em == null || em == "") {
+                alert("Both fields must be filled out");
+                return false;
+            }
 
-        if (pw == null || pw == "" || em == null || em == "") {
-            alert("Both fields must be filled out");
+            if(em.indexOf('@')==-1){
+                alert("Invalid email address");
+                return false;
+            }
+            return true;
+        } catch(e) {
             return false;
         }
-
-        if(em.indexOf('@')==-1){
-            alert("Invalid email address");
-            return false;
-        }
-        return true;
-    } catch(e) {
         return false;
     }
-    return false;
-}
-</script>
+    </script>
 
 
 </body>

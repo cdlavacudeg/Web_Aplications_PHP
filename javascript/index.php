@@ -1,6 +1,7 @@
 <?php 
  session_start();
  require_once 'pdo.php';
+ require_once 'util.php';
  $stmt = $pdo->query("SELECT profile_id,first_name,last_name,headline FROM profile");
  $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -8,10 +9,7 @@
 
 <!DOCTYPE html>
 <html>
-<head>
-<title>Cristian David Lavacude Galvis</title>
-<?php require_once "bootstrap.php"; ?>
-</head>
+<?php require_once 'head.php';?>
 <body>
 <div class="container">
 <h1>Resume Registry</h1>
@@ -19,15 +17,7 @@
 <?php 
     if (isset($_SESSION['name'])){
         
-        if ( isset($_SESSION['success']) ) {
-            echo('<p style="color: green;">'.htmlentities($_SESSION['success'])."</p>\n");
-            unset($_SESSION['success']);
-        }
-
-        if ( isset($_SESSION['error']) ) {
-            echo('<p style="color: red;">'.htmlentities($_SESSION['error'])."</p>\n");
-            unset($_SESSION['error']);
-        }
+        flashMessages();
 
         echo('<p><a href="logout.php">Logout</a></p>');
 
