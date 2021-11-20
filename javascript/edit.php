@@ -10,16 +10,20 @@
     }
         
     $profile=selectProfile($pdo);
-    $user_id=$profile["user_id"];
+    
     
     if(isset($_POST['first_name']) || isset($_POST['last_name']) 
         || isset($_POST['email']) || isset($_POST['headline']) 
         || isset($_POST['summary'])||isset($_POST['profile_id']))
-        {
-            error_log('revisando datos post');
-            
+        {         
             $msg=validateProfile();
-        
+            if(is_string($msg)){
+                $_SESSION['error']=$msg;
+                header('Location:edit.php?profile_id='.$_POST['profile_id']);
+                return;
+            }
+
+            $msg=validatePos();
             if(is_string($msg)){
                 $_SESSION['error']=$msg;
                 header('Location:edit.php?profile_id='.$_POST['profile_id']);
@@ -36,6 +40,12 @@
                     ':su' => htmlentities($_POST['summary']),
                     ':pid'=> htmlentities($_POST['profile_id']))
                 );
+
+                $stmt = $pdo->prepare('DELETE FROM Position WHERE profile_id=:pid');
+                $stmt->execute(array( ':pid' => $_POST['profile_id']));
+                
+                addPos($_POST['profile_id'],$pdo);
+
                 error_log('Cambiando los datos');
                 $_SESSION['success']='Profile updated';
                 header("Location:index.php");
@@ -56,11 +66,8 @@
         return;
   
     }
-    
-    
+    $position=selectPos($pdo,$profile['profile_id']);
 
-    
- 
 ?>
 
 <!DOCTYPE html>
@@ -87,7 +94,29 @@
             Summary:<br>
             <textarea name="summary" rows="8" cols="80" ><?= $profile['summary'] ?></textarea>
         </p>
+        <p>
+            Position:
+            <input type="submit" id="addPos" value="+">
+        </p>
+
+        <div id="position_fields">
+            <?php
+            
+            $countPos=0;
+            foreach($position as $pos){
+                echo('<div id="position'.$countPos.'">
+                <p>Year: <input type="text" name="year'.$countPos.'" value="'.$pos['year'].'" />
+                    <input type="button" value="-" 
+                    onclick="$(\'#position'.$countPos.'\').remove(); return false;"></p>
+                    <textarea name="desc'.$countPos.'" rows="8" cols="80">'.$pos['description'].'</textarea>
+                </div>');
+            }
+            
+            ?>
+        </div>
         
+
+
         <p>
         <input type="hidden" name="profile_id" value="<?= $profile['profile_id'] ?>">
         <input type="hidden" name="user_id" value="<?= $profile['user_id'] ?>">
@@ -97,6 +126,37 @@
     </form>
 
 </div>
+
+
+<script>
+    countPos=0;
+    $(document).ready(function(){
+        window.console && console.log("Document ready called");
+
+        $('#addPos').click(function(event){
+            event.preventDefault();
+
+            if(countPos>=9){
+                alert("Maximum of nine positions exceeded");
+                return;
+            }
+            countPos++;
+            window.console && console.log("Adding position "+countPos);
+
+            $('#position_fields').append(
+                '<div id="position'+countPos+'"> \
+                <p>Year: <input type="text" name="year'+countPos+'" value="" /> \
+                    <input type="button" value="-" \
+                    onclick="$(\'#position'+countPos+'\').remove(); return false;"></p>\
+                    <textarea name="desc'+countPos+'" rows="8" cols="80"></textarea>\
+                </div>');
+
+        });  
+
+          
+    });
+
+</script>
 
 </body>
 

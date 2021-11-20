@@ -65,7 +65,7 @@ function selectPos($pdo,$profile_id){
 
 function addPos($profile_id,$pdo){
     $rank=1;
-    for($i;$i<=9;$i++){
+    for($i=0;$i<=9;$i++){
         if(!isset($_POST['year'.$i]) )continue;
         if(!isset($_POST['desc'.$i]) )continue;
         $year =$_POST['year'.$i];
