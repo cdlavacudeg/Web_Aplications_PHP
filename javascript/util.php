@@ -24,6 +24,27 @@ function validateProfile(){
     return true;
 }
 
+//validate position
+
+function validatePos(){
+    for($i=0;$i<=9;$i++){
+        if(!isset($_POST['year'.$i]) )continue;
+        if(!isset($_POST['desc'.$i]) )continue;
+        $year =$_POST['year'.$i];
+        $desc = $_POST['desc'.$i];
+
+        if(strlen($year)==0 || strlen($desc)==0){
+            return"All fields are required";
+        }
+
+        if(! is_numeric($year)){
+            return "Position year must be numeric";        
+        }
+
+    }
+    return true;
+}
+
 //profile select
 
 function selectProfile($pdo){
@@ -33,4 +54,30 @@ function selectProfile($pdo){
     );
     $profile=$stmt->fetch();
     return $profile;
+}
+
+function selectPos($pdo,$profile_id){
+    $stmt=$pdo->prepare('SELECT * FROM Position WHERE profile_id= :pid ORDER BY rank');
+    $stmt->execute(array(':pid'=>$profile_id));
+    $position=$stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $position;
+}
+
+function addPos($profile_id,$pdo){
+    $rank=1;
+    for($i;$i<=9;$i++){
+        if(!isset($_POST['year'.$i]) )continue;
+        if(!isset($_POST['desc'.$i]) )continue;
+        $year =$_POST['year'.$i];
+        $desc = $_POST['desc'.$i];
+        
+        $stmt=$pdo->prepare('INSERT INTO Position (profile_id,rank,year,description) VALUES (:pid, :rank, :year, :desc)');
+        $stmt->execute(array(
+            ':pid' => $profile_id,
+            ':rank' => $rank,
+            ':year' => $year,
+            ':desc' => $desc)
+        );
+        $rank++;
+    }
 }
