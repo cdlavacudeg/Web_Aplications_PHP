@@ -13,6 +13,7 @@
     }
 
     $position=selectPos($pdo,$profile['profile_id']);
+    $education=selectEdu($pdo,$profile['profile_id']);
 ?>
 
 <!DOCTYPE html>
@@ -34,6 +35,12 @@
         echo('<p> Email:'.$profile['email'].'</p>');
         echo('<p> Headline:'.$profile['headline'].'</p>');
         echo('<p> Summary:'.$profile['summary'].'</p>');
+        echo('<p> Education:');
+        echo('<ul>');
+        foreach($education as $edu){
+        echo('<li>'.$edu['year'].': '.$edu['name'].'</li>');
+        }
+        echo('</ul>');
         echo('<p> Position:');
         echo('<ul>');
         foreach($position as $pos){

@@ -27,6 +27,12 @@
             return;
         }
 
+        $msg=validateEdu();
+        if(is_string($msg)){
+            $_SESSION['error']=$msg;
+            header('Location:add.php');
+            return;
+        }
         $stmt = $pdo->prepare('INSERT INTO profile  (user_id, first_name, last_name, email, headline, summary) VALUES ( :uid, :fn, :ln, :em, :he, :su)');
         $stmt->execute(array(
             ':uid' => $_SESSION['user_id'],
@@ -38,7 +44,7 @@
         );
 
         $profile_id= $pdo->lastInsertId();//function of pdo
-
+        addEdu($profile_id,$pdo);
         addPos($profile_id,$pdo);
         
         $_SESSION['success']='Record added';
@@ -74,7 +80,11 @@
             Summary:<br>
             <textarea name="summary" rows="8" cols="80"></textarea>
         </p>
-        
+        <p>
+            Education:
+            <input type="submit" id="addEdu" value="+">
+        </p>
+        <div id="edu_fields"></div>
         <p>
             Position:
             <input type="submit" id="addPos" value="+">
@@ -88,22 +98,11 @@
         </p>
     </form>
 </div>
-<script
-  src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
-  integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
-  crossorigin="anonymous">
-
-</script>
-  
-  <script
-  src="https://code.jquery.com/jquery-3.6.0.js"
-  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
-  crossorigin="anonymous">
-</script>
-
 
 <script>
     countPos=0;
+    countEdu=0;
+
     $(document).ready(function(){
         window.console && console.log("Document ready called");
 
@@ -125,9 +124,29 @@
                     <textarea name="desc'+countPos+'" rows="8" cols="80"></textarea>\
                 </div>');
 
-        });  
+        });
 
-          
+        $('#addEdu').click(function(event){
+            event.preventDefault();
+            if(countEdu>=9){
+                alert("Maximum of nine education entries exceeded");
+                return;
+            }
+            window.console && console.log("Adding education"+countEdu);
+            countEdu++;
+            $('#edu_fields').append(
+                '<div id="edu'+countEdu+'"> \
+                <p>Year: <input type="text" name="edu_year'+countEdu+'" value="" /> \
+                <input type="button" value="-" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br>\
+                <p>School: <input type="text" size="80" name="edu_school'+countEdu+'" class="school" value="" />\
+                </p></div>'
+            );
+
+            $('.school').autocomplete({
+                source: "school.php"
+            });
+
+        });
     });
 
 </script>

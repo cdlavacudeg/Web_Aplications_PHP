@@ -30,6 +30,13 @@
                 return;
             }
 
+            $msg=validateEdu();
+            if(is_string($msg)){
+                $_SESSION['error']=$msg;
+                header('Location:add.php');
+                return;
+            }
+
             if($_POST['user_id'] == $_SESSION['user_id']){
                 $stmt = $pdo->prepare(' UPDATE profile SET first_name=:fn, last_name=:ln, email=:em, headline=:he, summary=:su WHERE profile_id=:pid');
                 $stmt->execute(array(
@@ -45,6 +52,11 @@
                 $stmt->execute(array( ':pid' => $_POST['profile_id']));
                 
                 addPos($_POST['profile_id'],$pdo);
+
+                $stmt = $pdo->prepare('DELETE FROM Education WHERE profile_id=:pid');
+                $stmt->execute(array( ':pid' => $_POST['profile_id']));
+
+                addEdu($_POST['profile_id'],$pdo);
 
                 error_log('Cambiando los datos');
                 $_SESSION['success']='Profile updated';
@@ -67,6 +79,8 @@
   
     }
     $position=selectPos($pdo,$profile['profile_id']);
+    $education=selectEdu($pdo,$profile['profile_id']);
+    
 
 ?>
 
@@ -94,6 +108,26 @@
             Summary:<br>
             <textarea name="summary" rows="8" cols="80" ><?= $profile['summary'] ?></textarea>
         </p>
+
+        <p>
+            Education:
+            <input type="submit" id="addEdu" value="+">
+        </p>
+        <div id="edu_fields">
+            <?php 
+            $countEdu=0;
+            foreach($education as $edu){
+             echo('<div id="edu'.$countEdu.'">
+             <p>Year: <input type="text" name="edu_year'.$countEdu.'" value="'.$edu['year'].'" /> 
+             <input type="button" value="-" onclick="$(\'#edu'.$countEdu.'\').remove();return false;"><br>
+             <p>School: <input type="text" size="80" name="edu_school'.$countEdu.'" class="school" value="'.$edu['name'].'" />
+             </p></div>');
+             $countEdu++;
+            }
+
+            ?>
+        </div>
+
         <p>
             Position:
             <input type="submit" id="addPos" value="+">
@@ -110,6 +144,7 @@
                     onclick="$(\'#position'.$countPos.'\').remove(); return false;"></p>
                     <textarea name="desc'.$countPos.'" rows="8" cols="80">'.$pos['description'].'</textarea>
                 </div>');
+                $countPos++;
             }
             
             ?>
@@ -127,9 +162,10 @@
 
 </div>
 
-
 <script>
     countPos=0;
+    countEdu=0;
+
     $(document).ready(function(){
         window.console && console.log("Document ready called");
 
@@ -151,9 +187,29 @@
                     <textarea name="desc'+countPos+'" rows="8" cols="80"></textarea>\
                 </div>');
 
-        });  
+        });
 
-          
+        $('#addEdu').click(function(event){
+            event.preventDefault();
+            if(countEdu>=9){
+                alert("Maximum of nine education entries exceeded");
+                return;
+            }
+            window.console && console.log("Adding education"+countEdu);
+            countEdu++;
+            $('#edu_fields').append(
+                '<div id="edu'+countEdu+'"> \
+                <p>Year: <input type="text" name="edu_year'+countEdu+'" value="" /> \
+                <input type="button" value="-" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br>\
+                <p>School: <input type="text" size="80" name="edu_school'+countEdu+'" class="school" value="" />\
+                </p></div>'
+            );
+
+            $('.school').autocomplete({
+                source: "school.php"
+            });
+
+        });
     });
 
 </script>
